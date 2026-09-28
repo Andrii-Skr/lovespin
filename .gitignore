@@ -5,6 +5,9 @@ playwright-report
 test-results
 .env
 .env.local
+.env.production
+backups
+.release
 data/uploads/*
 !data/uploads/.gitkeep
 *.log

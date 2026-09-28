@@ -19,6 +19,22 @@ pnpm dev
 
 ## VPS
 
+Production deployment for the Just Ours Love stack uses `compose.production.yml`
+and the shared `justours-edge` Docker network. Configure `spin.justours.love`
+in Caddy, create `.env.production` from `.env.production.example`, and provide
+production Turnstile keys that allow that hostname. Then run:
+
+```bash
+git pull --ff-only
+bash scripts/deploy-production.sh
+```
+
+The script builds a release image, creates a PostgreSQL backup, starts the app
+and cleanup worker, and checks `/api/healthz`. It keeps database and upload
+volumes across updates.
+
+The section below documents the standalone loopback setup.
+
 1. Создайте `.env` и задайте сильные `POSTGRES_PASSWORD` и `IP_HASH_SECRET`.
 2. Укажите публичный HTTPS-адрес в `NEXT_PUBLIC_SITE_URL`.
 3. Пока используется тестовый Turnstile, оставьте тестовые ключи. Перед публичным запуском создайте widget для своего hostname, замените обе переменные Turnstile и пересоберите image.
