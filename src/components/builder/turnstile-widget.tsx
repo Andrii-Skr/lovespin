@@ -12,6 +12,7 @@ declare global {
           sitekey: string;
           theme?: "light" | "dark" | "auto";
           size?: "normal" | "compact" | "flexible";
+          appearance?: "always" | "execute" | "interaction-only";
           callback?: (token: string) => void;
           "expired-callback"?: () => void;
           "error-callback"?: () => void;
@@ -36,6 +37,7 @@ export function TurnstileWidget({ onVerify }: { onVerify: (token: string) => voi
       sitekey: siteKey,
       theme: "dark",
       size: "flexible",
+      appearance: "interaction-only",
       callback: onVerify,
       "expired-callback": () => onVerify(""),
       "error-callback": () => onVerify(""),
@@ -61,7 +63,7 @@ export function TurnstileWidget({ onVerify }: { onVerify: (token: string) => voi
         strategy="afterInteractive"
         onReady={() => setScriptReady(true)}
       />
-      <div ref={containerRef} className="min-h-[65px] w-full" />
+      <div ref={containerRef} className="w-full" />
     </>
   );
 }
