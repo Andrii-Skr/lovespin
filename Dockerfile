@@ -30,7 +30,10 @@ COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/runtime-scripts ./scripts
 COPY --from=builder /app/migrations ./migrations
+# Next.js standalone tracing omits this native library even though sharp itself is copied.
+COPY --from=deps /app/node_modules/.pnpm/@img+sharp-libvips-linuxmusl-x64@1.3.2/node_modules/@img/sharp-libvips-linuxmusl-x64/lib/ /app/node_modules/.pnpm/@img+sharp-libvips-linuxmusl-x64@1.3.2/node_modules/@img/sharp-libvips-linuxmusl-x64/lib/
 RUN mkdir -p /data/uploads && chown -R nextjs:nodejs /app /data/uploads
 USER nextjs
+RUN node -e "require('sharp').versions.vips"
 EXPOSE 3000
 CMD ["sh", "-c", "node scripts/migrate.mjs && node server.js"]
