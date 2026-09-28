@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CroppedImage } from "@/components/ui/cropped-image";
 import { Reel } from "@/components/game/reel";
 import { getReelStopSeconds, getRoundRevealDelayMs } from "@/components/game/reel-script";
+import { gameCopy, type GameLocale } from "@/components/game/game-copy";
 import type { LovePageInput } from "@/lib/love-page-schema";
 import { PHOTO_FRAME_BORDER_RADIUS, type PhotoCrop } from "@/lib/photo-crop";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ type LoveGameProps = {
   certificateUrl?: string;
   certificateName?: string;
   compact?: boolean;
+  locale?: GameLocale;
 };
 
 const petals = [
@@ -26,26 +28,27 @@ const petals = [
   [58, 0.4, 7.4], [70, 1.35, 8.2], [82, 0.8, 6.6], [92, 1.55, 7.7],
 ] as const;
 
-function MiniRules() {
+function MiniRules({ locale }: { locale: GameLocale }) {
+  const copy = gameCopy[locale];
   return (
-    <div className="mb-5 grid w-full grid-cols-3 border-y border-white/[0.08] py-3" aria-label="Правила комбинаций">
+    <div className="mb-5 grid w-full grid-cols-3 border-y border-white/[0.08] py-3" aria-label={copy.rules}>
       <div className="flex flex-col items-center gap-1.5 border-r border-white/[0.08] px-1 text-center">
         <div className="flex items-center gap-1 text-[#c9abb4]" aria-hidden="true">
           <Mail className="size-3.5" /><Flower2 className="size-3.5" /><Sparkles className="size-3.5" />
         </div>
-        <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#89747b] sm:text-[9px]">Комплимент</span>
+        <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#89747b] sm:text-[9px]">{copy.compliment}</span>
       </div>
       <div className="flex flex-col items-center gap-1.5 border-r border-white/[0.08] px-1 text-center">
         <div className="flex items-center gap-0.5 text-[#d9829d]" aria-hidden="true">
           {[0, 1, 2].map((item) => <Heart key={item} className="size-3.5 fill-current" />)}
         </div>
-        <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#9f7c87] sm:text-[9px]">Главный подарок</span>
+        <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#9f7c87] sm:text-[9px]">{copy.grandPrize}</span>
       </div>
       <div className="flex flex-col items-center gap-1.5 px-1 text-center">
         <div className="flex items-center gap-0.5 text-[#6f535c]" aria-hidden="true">
           <HeartCrack className="size-3.5" />
         </div>
-        <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#78666c] sm:text-[9px]">Хотя бы одно — всё пропало</span>
+        <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[#78666c] sm:text-[9px]">{copy.miss}</span>
       </div>
     </div>
   );
@@ -62,7 +65,9 @@ function LoveGameInner({
   certificateUrl,
   certificateName,
   compact = false,
+  locale = "ru",
 }: LoveGameProps) {
+  const copy = gameCopy[locale];
   const phase = useGameStore((state) => state.phase);
   const round = useGameStore((state) => state.round);
   const begin = useGameStore((state) => state.begin);
@@ -129,7 +134,7 @@ function LoveGameInner({
               transition={{ delay: 0.22 }}
               className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-[#dcb4c0]"
             >
-              Три вращения · одна история
+              {copy.introKicker}
             </motion.p>
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
@@ -137,7 +142,7 @@ function LoveGameInner({
               transition={{ delay: 0.32 }}
               className={cn("font-display max-w-2xl font-semibold leading-[0.93] tracking-[-0.035em]", compact ? "text-5xl" : "text-6xl sm:text-8xl")}
             >
-              {data.recipientName},<br />сегодня удача влюблена в тебя
+              {data.recipientName},<br />{copy.introTitle}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
@@ -149,7 +154,7 @@ function LoveGameInner({
             </motion.p>
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.62 }} className="mt-9">
               <Button size="lg" variant="accent" onClick={begin}>
-                Начать историю <Heart className="size-4 fill-current" />
+                {copy.begin} <Heart className="size-4 fill-current" />
               </Button>
             </motion.div>
           </motion.div>
@@ -183,7 +188,7 @@ function LoveGameInner({
               >
                 <CroppedImage
                   src={photoUrl}
-                  alt={`Фото для ${data.recipientName}`}
+                  alt={copy.photoAlt(data.recipientName)}
                   crop={photoCrop}
                   sizes="330px"
                 />
@@ -198,36 +203,36 @@ function LoveGameInner({
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ type: "spring", damping: 18, stiffness: 110 }}
                 className="group relative flex aspect-[4/5] w-full max-w-[330px] flex-col items-center justify-center overflow-hidden rounded-[28px] border border-[#e7c98e]/35 bg-[radial-gradient(circle_at_50%_25%,rgba(229,199,140,.13),transparent_48%),#32131d] px-8 text-center shadow-[0_30px_100px_rgba(0,0,0,.48),0_0_80px_rgba(229,199,140,.11)] transition hover:border-[#e7c98e]/55"
-                aria-label={`Открыть сертификат ${certificateName ?? ""}`.trim()}
+                aria-label={copy.certificateAlt(certificateName ?? "").trim()}
               >
                 <span className="absolute inset-4 rounded-[20px] border border-[#e5c78c]/10" />
                 <span className="relative flex size-20 items-center justify-center rounded-full border border-[#e5c78c]/25 bg-[#e5c78c]/[0.08]">
                   <FileText className="size-9 text-[#e5c78c]" strokeWidth={1.4} />
                 </span>
-                <span className="relative mt-7 text-[10px] font-bold uppercase tracking-[0.32em] text-[#d6b879]">PDF-сертификат</span>
-                <span className="relative mt-3 line-clamp-2 max-w-full text-sm font-semibold leading-5 text-[#eadbd2]">{certificateName ?? "Сертификат"}</span>
-                <span className="relative mt-7 flex items-center gap-2 text-xs font-semibold text-[#d9a9b7] transition group-hover:text-[#f0c3d0]">Открыть <ExternalLink className="size-3.5" /></span>
+                <span className="relative mt-7 text-[10px] font-bold uppercase tracking-[0.32em] text-[#d6b879]">{copy.certificate}</span>
+                <span className="relative mt-3 line-clamp-2 max-w-full text-sm font-semibold leading-5 text-[#eadbd2]">{certificateName ?? copy.certificate}</span>
+                <span className="relative mt-7 flex items-center gap-2 text-xs font-semibold text-[#d9a9b7] transition group-hover:text-[#f0c3d0]">{copy.open} <ExternalLink className="size-3.5" /></span>
               </motion.a>
             ) : null}
             <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-7 max-w-xl text-center">
               <div className="mb-3 flex items-center justify-center gap-2 text-[#e5c78c]">
                 <Sparkles className="size-4" />
-                <span className="text-[11px] font-bold uppercase tracking-[0.3em]">Главный подарок</span>
+                <span className="text-[11px] font-bold uppercase tracking-[0.3em]">{copy.grandPrize}</span>
                 <Sparkles className="size-4" />
               </div>
               <h2 className={cn("font-display gold-text font-semibold leading-none", compact ? "text-5xl" : "text-6xl sm:text-7xl")}>{data.prizeTitle}</h2>
               <p className="mx-auto mt-4 max-w-md text-[15px] leading-7 text-[#e4d4ca]">{data.prizeMessage}</p>
-              <p className="font-display mt-4 text-2xl italic text-[#d89aae]">С любовью, {data.senderName}</p>
+              <p className="font-display mt-4 text-2xl italic text-[#d89aae]">{copy.withLove}, {data.senderName}</p>
               <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 {certificateUrl ? (
                   <Button variant="accent" asChild>
                     <a href={certificateUrl} target="_blank" rel="noreferrer">
-                      <FileText className="size-4" /> Открыть сертификат
+                      <FileText className="size-4" /> {copy.open} {copy.certificate}
                     </a>
                   </Button>
                 ) : null}
                 <Button variant="outline" onClick={replay}>
-                  <RotateCcw className="size-4" /> Пережить ещё раз
+                  <RotateCcw className="size-4" /> {copy.replay}
                 </Button>
               </div>
             </motion.div>
@@ -243,12 +248,12 @@ function LoveGameInner({
             )}
           >
             <div className="mb-5 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.28em] text-[#bb9fa7]">
-              <span>LoveSpin</span><span className="size-1 rounded-full bg-[#bd4f6c]" /><span>Вращение {round + 1} из 3</span>
+              <span>LoveSpin</span><span className="size-1 rounded-full bg-[#bd4f6c]" /><span>{copy.spinCount(round + 1)}</span>
             </div>
             <h2 className="font-display mb-5 text-center text-4xl font-semibold leading-none sm:text-5xl">
-              {round === 0 ? "Начнём с малого чуда" : round === 1 ? "Сердце подсказывает: ещё раз" : "Кажется, всё совпадает…"}
+              {copy.roundTitles[round]}
             </h2>
-            <MiniRules />
+            <MiniRules locale={locale} />
             <div className="relative w-full rounded-[42px] border border-[#e5c78c]/28 bg-[radial-gradient(circle_at_50%_0%,rgba(111,39,61,.28),transparent_55%),rgba(36,13,21,.92)] p-3 shadow-[0_34px_110px_rgba(0,0,0,.5),inset_0_1px_0_rgba(255,255,255,.08),0_0_60px_rgba(107,37,58,.08)] sm:p-5">
               <div className="pointer-events-none absolute -inset-px rounded-[42px] bg-gradient-to-b from-white/[0.055] via-transparent to-black/10" />
               <div className="pointer-events-none absolute left-5 top-3 size-1 rounded-full bg-[#d9b67c]/35 shadow-[0_0_8px_rgba(229,199,140,.25)]" />
@@ -259,7 +264,7 @@ function LoveGameInner({
                 ))}
               </div>
               <div className="relative mt-4 flex items-center justify-between px-2 pb-1 text-[10px] uppercase tracking-[0.2em] text-[#886f76]">
-                <span>Сердце знает правильный знак</span><Heart className="size-3 fill-[#8d4b61] text-[#8d4b61]" />
+                <span>{copy.machineHint}</span><Heart className="size-3 fill-[#8d4b61] text-[#8d4b61]" />
               </div>
             </div>
 
@@ -275,7 +280,7 @@ function LoveGameInner({
                     }}
                     className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#80616b]"
                   >
-                    Ой… кажется, всё пропало?
+                    {copy.falseAlarm}
                   </motion.p>
                 ) : null}
               </div>
@@ -289,9 +294,9 @@ function LoveGameInner({
                     exit={{ opacity: 0, y: -10 }}
                     className="absolute inset-x-0 top-7 mx-auto max-w-xl"
                   >
-                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.28em] text-[#d48aa0]">Твой выигрыш</p>
+                    <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.28em] text-[#d48aa0]">{copy.win}</p>
                     <p className="font-display text-3xl font-semibold leading-tight">{compliment}</p>
-                    <Button className="mt-5" onClick={nextRound}>Ещё одно вращение <Heart className="size-4 fill-current" /></Button>
+                    <Button className="mt-5" onClick={nextRound}>{copy.next} <Heart className="size-4 fill-current" /></Button>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -301,7 +306,7 @@ function LoveGameInner({
                     className="absolute inset-x-0 top-7 flex justify-center"
                   >
                     <Button size="lg" variant="accent" onClick={startSpin} disabled={phase === "spinning"}>
-                      {phase === "spinning" ? "Сердце выбирает…" : round === 2 ? "Остался последний шанс" : "Вращать"}
+                      {phase === "spinning" ? copy.spinning : round === 2 ? copy.lastChance : copy.spin}
                       {round === 2 ? <Gift className="size-4" /> : <Sparkles className="size-4" />}
                     </Button>
                   </motion.div>

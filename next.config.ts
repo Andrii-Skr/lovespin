@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   async headers() {
-    return ["/love/:slug", "/media/:slug", "/certificate/:slug"].map((source) => ({
+    const privatePages = ["/love/:slug", "/media/:slug", "/certificate/:slug"].map((source) => ({
       source,
       headers: [
         { key: "Cache-Control", value: "private, no-store, max-age=0" },
@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
         { key: "X-Content-Type-Options", value: "nosniff" },
       ],
     }));
+    return [
+      ...privatePages,
+      {
+        source: "/demo",
+        headers: [
+          { key: "Content-Security-Policy", value: `frame-ancestors 'self' ${process.env.NODE_ENV === "production" ? "https://justours.love" : "http://127.0.0.1:3400"}` },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+        ],
+      },
+    ];
   },
   allowedDevOrigins:
     configuredDevOrigins && configuredDevOrigins.length > 0

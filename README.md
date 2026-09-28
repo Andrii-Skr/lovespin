@@ -17,6 +17,8 @@ pnpm dev
 Откройте `http://localhost:3000/create`. В `.env.example` стоят официальные always-pass тестовые ключи Cloudflare Turnstile; они подходят для localhost и автоматических тестов.
 Команда `pnpm dev` запускает локальную очистку при старте и повторяет её раз в час. Для разовой очистки используйте `pnpm cleanup`.
 
+`/demo?lang=ru` показывает пример готовой открытки без базы данных и публикации. Для витрины доступны также `lang=uk` и `lang=en`; конструктор открытки пока остаётся русскоязычным.
+
 ## VPS
 
 Production deployment for the Just Ours Love stack uses `compose.production.yml`
