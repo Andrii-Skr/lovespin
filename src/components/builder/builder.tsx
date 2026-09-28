@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { ArrowLeft, ArrowRight, Check, Copy, FileText, Heart, HeartCrack, ImagePlus, Link2, LoaderCircle, Share2, Sparkles, X } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
 import { publishLovePage, type PublishState } from "@/actions/publish";
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 
 const initialPublishState: PublishState = { status: "idle" };
 const steps = ["Посвящение", "Сценарий", "Предпросмотр"];
+const ShareQr = dynamic(() => import("@/components/builder/share-qr").then((module) => module.ShareQr));
 
 async function copyText(text: string) {
   try {
@@ -242,6 +244,7 @@ export function Builder() {
             <Button size="lg" variant="accent" onClick={shareLink}><Share2 className="size-4" /> Поделиться</Button>
             <Button size="lg" variant="outline" asChild><a href={shareUrl}>Открыть открытку <ArrowRight className="size-4" /></a></Button>
           </div>
+          <ShareQr url={shareUrl} />
           {copyError ? <p className="mx-auto mt-4 max-w-md text-xs leading-5 text-[#e99bb2]" role="alert">{copyError}</p> : null}
           {publishState.expiresAt ? (
             <p className="mt-6 text-xs text-[#8f7880]">Доступна до {new Intl.DateTimeFormat("ru", { dateStyle: "long", timeStyle: "short" }).format(new Date(publishState.expiresAt))}</p>
@@ -371,7 +374,7 @@ export function Builder() {
           {step === 2 && (photoPreview || certificatePreview) ? (
             <div className="mt-8 lg:hidden">
               <p className="mb-3 text-center text-[10px] font-semibold uppercase tracking-[0.24em] text-[#715f65]">Интерактивный предпросмотр</p>
-              <LoveGame data={values} photoUrl={photoPreview || undefined} photoCrop={photoCrop} certificateUrl={certificatePreview || undefined} certificateName={certificate?.name} compact />
+              <LoveGame data={values} photoUrl={photoPreview || undefined} photoCrop={photoCrop} certificateUrl={certificatePreview || undefined} compact />
             </div>
           ) : null}
 
@@ -392,7 +395,7 @@ export function Builder() {
           <div className="sticky top-6 mx-auto max-w-[690px]">
             <div className="mb-3 flex items-center justify-between px-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#715f65]"><span>Живой предпросмотр</span><span>{step === 2 ? "Интерактивный" : "Финальный вид"}</span></div>
             {(photoPreview || certificatePreview) && values.recipientName && values.senderName ? (
-              <LoveGame data={values} photoUrl={photoPreview || undefined} photoCrop={photoCrop} certificateUrl={certificatePreview || undefined} certificateName={certificate?.name} compact />
+              <LoveGame data={values} photoUrl={photoPreview || undefined} photoCrop={photoCrop} certificateUrl={certificatePreview || undefined} compact />
             ) : (
               <div className="velvet-bg flex min-h-[680px] items-center justify-center rounded-[34px] border border-white/[0.06] px-10 text-center"><div><Heart className="mx-auto size-7 text-[#6f3b4c]" /><p className="font-display mt-5 text-3xl text-[#8e747c]">Здесь появится<br />ваша история</p><p className="mt-3 text-xs text-[#5f4e54]">Добавьте имя, подпись и вложение</p></div></div>
             )}

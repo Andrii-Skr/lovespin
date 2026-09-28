@@ -18,7 +18,6 @@ type LoveGameProps = {
   photoUrl?: string;
   photoCrop?: PhotoCrop;
   certificateUrl?: string;
-  certificateName?: string;
   compact?: boolean;
   locale?: GameLocale;
 };
@@ -71,7 +70,6 @@ function LoveGameInner({
   photoUrl,
   photoCrop,
   certificateUrl,
-  certificateName,
   compact = false,
   locale = "ru",
 }: LoveGameProps) {
@@ -180,7 +178,7 @@ function LoveGameInner({
                     key={left}
                     initial={{ y: -64, x: 0, opacity: 0, rotate: -25 }}
                     animate={{ y: "110vh", x: drift, opacity: [0, 1, 1, 0], rotate: index % 2 ? 55 : -65 }}
-                    transition={{ duration, delay, ease: "linear", times: [0, 0.15, 0.8, 1] }}
+                    transition={{ duration, delay, ease: "linear", times: [0, 0.15, 0.8, 1], repeat: 3, repeatDelay: 0.25 }}
                     className={cn("absolute top-0", kind === "gift" ? "text-[#e5c78c]" : "text-[#d989a2]")}
                     style={{ left: `${left}%` }}
                   >
@@ -216,14 +214,13 @@ function LoveGameInner({
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ type: "spring", damping: 18, stiffness: 110 }}
                 className="group relative z-10 flex aspect-[4/5] w-full max-w-[330px] flex-col items-center justify-center overflow-hidden rounded-[28px] border border-[#e7c98e]/35 bg-[radial-gradient(circle_at_50%_25%,rgba(229,199,140,.13),transparent_48%),#32131d] px-8 text-center shadow-[0_30px_100px_rgba(0,0,0,.48),0_0_80px_rgba(229,199,140,.11)] transition hover:border-[#e7c98e]/55"
-                aria-label={copy.certificateAlt(certificateName ?? "").trim()}
+                aria-label={copy.certificateAlt}
               >
                 <span className="absolute inset-4 rounded-[20px] border border-[#e5c78c]/10" />
                 <span className="relative flex size-20 items-center justify-center rounded-full border border-[#e5c78c]/25 bg-[#e5c78c]/[0.08]">
                   <FileText className="size-9 text-[#e5c78c]" strokeWidth={1.4} />
                 </span>
                 <span className="relative mt-7 text-[10px] font-bold uppercase tracking-[0.32em] text-[#d6b879]">{copy.certificate}</span>
-                <span className="relative mt-3 line-clamp-2 max-w-full text-sm font-semibold leading-5 text-[#eadbd2]">{certificateName ?? copy.certificate}</span>
                 <span className="relative mt-7 flex items-center gap-2 text-xs font-semibold text-[#d9a9b7] transition group-hover:text-[#f0c3d0]">{copy.open} <ExternalLink className="size-3.5" /></span>
               </motion.a>
             ) : null}

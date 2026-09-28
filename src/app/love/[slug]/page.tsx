@@ -50,7 +50,6 @@ export default async function PublishedLovePage({ params }: PageProps) {
       data={data}
       photoUrl={page.photo_path ? `/media/${slug}` : undefined}
       certificateUrl={page.certificate_name ? `/certificate/${slug}` : undefined}
-      certificateName={page.certificate_name ?? undefined}
     />
   );
 }
