@@ -23,9 +23,17 @@ type LoveGameProps = {
   locale?: GameLocale;
 };
 
-const petals = [
-  [8, 0.15, 7], [18, 0.7, 8], [30, 0.35, 6.8], [44, 1.1, 8.5],
-  [58, 0.4, 7.4], [70, 1.35, 8.2], [82, 0.8, 6.6], [92, 1.55, 7.7],
+const celebrationPieces = [
+  { left: 5, delay: 0, duration: 4.2, drift: 38, kind: "gift" },
+  { left: 13, delay: 0.65, duration: 4.7, drift: -24, kind: "sparkle" },
+  { left: 21, delay: 0.3, duration: 4.4, drift: 30, kind: "gift" },
+  { left: 29, delay: 1.15, duration: 4.8, drift: -22, kind: "heart" },
+  { left: 38, delay: 0.8, duration: 4.6, drift: 25, kind: "sparkle" },
+  { left: 62, delay: 0.4, duration: 4.5, drift: -30, kind: "gift" },
+  { left: 71, delay: 1, duration: 4.9, drift: 28, kind: "heart" },
+  { left: 79, delay: 0.15, duration: 4.3, drift: -32, kind: "gift" },
+  { left: 87, delay: 0.9, duration: 4.7, drift: 20, kind: "sparkle" },
+  { left: 95, delay: 0.5, duration: 4.4, drift: -35, kind: "gift" },
 ] as const;
 
 function MiniRules({ locale }: { locale: GameLocale }) {
@@ -165,26 +173,31 @@ function LoveGameInner({
             animate={{ opacity: 1 }}
             className="relative z-20 flex min-h-full w-full flex-col items-center justify-center px-5 py-10 sm:px-10"
           >
-            {petals.map(([left, delay, duration], index) => (
-              <motion.div
-                key={left}
-                aria-hidden="true"
-                initial={{ y: -120, x: 0, opacity: 0, rotate: 0 }}
-                animate={{ y: "110vh", x: index % 2 ? 45 : -35, opacity: [0, 0.9, 0.9, 0], rotate: 260 }}
-                transition={{ duration: reducedMotion ? 0.01 : duration, delay, repeat: reducedMotion ? 0 : Infinity, ease: "linear" }}
-                className="absolute top-0 text-[#d989a2]"
-                style={{ left: `${left}%` }}
-              >
-                <Heart className="size-3 fill-current" />
-              </motion.div>
-            ))}
+            {!reducedMotion && (
+              <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+                {celebrationPieces.map(({ left, delay, duration, drift, kind }, index) => (
+                  <motion.div
+                    key={left}
+                    initial={{ y: -64, x: 0, opacity: 0, rotate: -25 }}
+                    animate={{ y: "110vh", x: drift, opacity: [0, 1, 1, 0], rotate: index % 2 ? 55 : -65 }}
+                    transition={{ duration, delay, ease: "linear", times: [0, 0.15, 0.8, 1] }}
+                    className={cn("absolute top-0", kind === "gift" ? "text-[#e5c78c]" : "text-[#d989a2]")}
+                    style={{ left: `${left}%` }}
+                  >
+                    {kind === "gift" ? <Gift className="size-6 drop-shadow-[0_0_10px_rgba(229,199,140,.45)]" strokeWidth={1.6} />
+                      : kind === "heart" ? <Heart className="size-4 fill-current" />
+                        : <Sparkles className="size-5" strokeWidth={1.5} />}
+                  </motion.div>
+                ))}
+              </div>
+            )}
             {photoUrl ? (
               <motion.div
                 initial={{ scale: 0.78, opacity: 0, y: 28 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ type: "spring", damping: 18, stiffness: 110 }}
                 style={{ borderRadius: PHOTO_FRAME_BORDER_RADIUS }}
-                className="relative aspect-[4/5] w-full max-w-[330px] overflow-hidden border border-[#e7c98e]/35 bg-[#32131d] shadow-[0_30px_100px_rgba(0,0,0,.48),0_0_80px_rgba(229,199,140,.11)]"
+                className="relative z-10 aspect-[4/5] w-full max-w-[330px] overflow-hidden border border-[#e7c98e]/35 bg-[#32131d] shadow-[0_30px_100px_rgba(0,0,0,.48),0_0_80px_rgba(229,199,140,.11)]"
               >
                 <CroppedImage
                   src={photoUrl}
@@ -202,7 +215,7 @@ function LoveGameInner({
                 initial={{ scale: 0.78, opacity: 0, y: 28 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 transition={{ type: "spring", damping: 18, stiffness: 110 }}
-                className="group relative flex aspect-[4/5] w-full max-w-[330px] flex-col items-center justify-center overflow-hidden rounded-[28px] border border-[#e7c98e]/35 bg-[radial-gradient(circle_at_50%_25%,rgba(229,199,140,.13),transparent_48%),#32131d] px-8 text-center shadow-[0_30px_100px_rgba(0,0,0,.48),0_0_80px_rgba(229,199,140,.11)] transition hover:border-[#e7c98e]/55"
+                className="group relative z-10 flex aspect-[4/5] w-full max-w-[330px] flex-col items-center justify-center overflow-hidden rounded-[28px] border border-[#e7c98e]/35 bg-[radial-gradient(circle_at_50%_25%,rgba(229,199,140,.13),transparent_48%),#32131d] px-8 text-center shadow-[0_30px_100px_rgba(0,0,0,.48),0_0_80px_rgba(229,199,140,.11)] transition hover:border-[#e7c98e]/55"
                 aria-label={copy.certificateAlt(certificateName ?? "").trim()}
               >
                 <span className="absolute inset-4 rounded-[20px] border border-[#e5c78c]/10" />
@@ -214,13 +227,13 @@ function LoveGameInner({
                 <span className="relative mt-7 flex items-center gap-2 text-xs font-semibold text-[#d9a9b7] transition group-hover:text-[#f0c3d0]">{copy.open} <ExternalLink className="size-3.5" /></span>
               </motion.a>
             ) : null}
-            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mt-7 max-w-xl text-center">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="relative z-10 mt-7 w-full max-w-xl text-center">
               <div className="mb-3 flex items-center justify-center gap-2 text-[#e5c78c]">
                 <Sparkles className="size-4" />
                 <span className="text-[11px] font-bold uppercase tracking-[0.3em]">{copy.grandPrize}</span>
                 <Sparkles className="size-4" />
               </div>
-              <h2 className={cn("font-display gold-text font-semibold leading-none", compact ? "text-5xl" : "text-6xl sm:text-7xl")}>{data.prizeTitle}</h2>
+              <h2 className={cn("font-display gold-text break-words font-semibold leading-none", compact ? "text-5xl" : "text-5xl sm:text-7xl")}>{data.prizeTitle}</h2>
               <p className="mx-auto mt-4 max-w-md text-[15px] leading-7 text-[#e4d4ca]">{data.prizeMessage}</p>
               <p className="font-display mt-4 text-2xl italic text-[#d89aae]">{copy.withLove}, {data.senderName}</p>
               <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
